@@ -1,0 +1,30 @@
+{
+  "name": "MHRmodDownloader",
+  "description": "123123",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.nexusmods.com/*"
+  ],
+  "action": {
+    "default_popup": "index.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "presistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.nexusmods.com/*"
+      ],
+      "js": [
+        "script.js"
+      ]
+    }
+  ]
+}
