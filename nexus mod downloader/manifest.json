@@ -5,7 +5,8 @@
   "manifest_version": 3,
   "permissions": [
     "tabs",
-    "storage"
+    "storage",
+    "download"
   ],
   "host_permissions": [
     "*://*.nexusmods.com/*"
@@ -16,15 +17,5 @@
   "background": {
     "service_worker": "background.js",
     "presistent": true
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "*://*.nexusmods.com/*"
-      ],
-      "js": [
-        "js/script.js"
-      ]
-    }
-  ]
+  }
 }
