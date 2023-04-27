@@ -23,7 +23,7 @@
         "*://*.nexusmods.com/*"
       ],
       "js": [
-        "script.js"
+        "js/script.js"
       ]
     }
   ]
