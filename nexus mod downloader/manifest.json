@@ -6,7 +6,7 @@
   "permissions": [
     "tabs",
     "storage",
-    "download"
+    "downloads"
   ],
   "host_permissions": [
     "*://*.nexusmods.com/*"

@@ -12,16 +12,26 @@ document.addEventListener(
             "this is the outcome",
             response.outcome
           );
-          response.outcome.forEach((item) => {
-            getPage(item);
-          });
+          if (response) {
+            response.outcome.forEach((item) => {
+              getPage(item);
+            });
+          }
+
         }
       );
     });
   }
 );
 
+const gameId = { monsterhunterrise: 4095 };
+const urlHead =
+  "https://www.nexusmods.com/Core/Libs/Common/Managers/Downloads?GenerateDownloadUrl";
 
+function substringFromEnd(string, targetChar) {
+  const index = string.lastIndexOf(targetChar);
+  return index !== -1 ? string.slice(index) : string;
+}
 
 function getPage(url) {
   const xhr = new XMLHttpRequest();
@@ -40,7 +50,7 @@ function getPage(url) {
         html,
         "text/html"
       );
-
+      const title = doc.title.split("at")[0]
       const mainfiles = doc.querySelector(
         "#file-container-main-files"
       );
@@ -48,75 +58,57 @@ function getPage(url) {
       console.log(url)
 
       if (mainfiles) {
-
-        const optfiles = doc.querySelector(
+        let optfiles = doc.querySelector(
           "#file-container-optional-files"
         );
-
-        const idArr = new Array();
-        var eleArr = new Array();
-        if (mainfiles.querySelectorAll(
-          ".btn.inline-flex.popup-btn-ajax"
-        )) {
-          let node_list =
-            mainfiles.querySelectorAll(
-              ".btn.inline-flex.popup-btn-ajax"
-            );
-          let regex = /\?id=\d+/;
-          eleArr = Array.from(node_list);
-          if (optfiles) {
-            optfiles
-              .querySelectorAll(
-                ".btn.inline-flex.popup-btn-ajax"
-              )
-              .forEach((element) => {
-                eleArr.push(element);
-              });
-          }
-          eleArr.forEach((element) => {
-            let matchResult =
-              element.href.match(regex);
-            idArr.push(
-              matchResult[0].split("?id=")[1]
-            );
-          });
+        let filelist = mainfiles.querySelectorAll("dt")
+        let fileArr = Array.from(filelist)
+        if (optfiles) {
+          let optlist = optfiles.querySelectorAll("dt")
+          let optArr = Array.from(optlist)
+          fileArr = fileArr.concat(optArr);
         }
 
-        else {
-          let node_list =
-            mainfiles.querySelectorAll(
-              ".btn.inline-flex"
-            );
-          let regex = /\&file_id=\d+/;
-          eleArr = Array.from(node_list);
-          if (optfiles) {
-            optfiles
-              .querySelectorAll(
-                ".btn.inline-flex"
-              )
-              .forEach((element) => {
-                eleArr.push(element);
-              });
-          }
-          eleArr.forEach((element) => {
-            let matchResult =
-              element.href.match(regex);
-            idArr.push(
-              matchResult[0].split("&file_id=")[1]
-            );
-          });
-        }
+        let eleArr = new Array();
+        fileArr.forEach((item) => {
+          let element = {};
+          element.id = item.getAttribute('data-id');
+          element.subtitle = item.querySelector('p').innerHTML
+          element.title = title
+          eleArr.push(element);
+        })
 
-        const result = [...new Set(idArr)];
+        console.log(eleArr)
 
-        console.log(result);
+        eleArr.forEach((item) => {
+          let params =
+            `fid=${item.id}` + `&game_id=${gameId.monsterhunterrise}`;
+          const xhrDown = new XMLHttpRequest();
+          xhrDown.open("POST", urlHead, true);
+          xhrDown.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+          );
+          xhrDown.onreadystatechange = function () {
+            if (
+              xhrDown.readyState === 4 &&
+              xhrDown.status === 200
+            ) {
+              const response = xhrDown.responseText;
+              item.downloadUrl = JSON.parse(response).url.slice(0, -3) + Math.floor(Math.random() * 256)
 
-        chrome.runtime.sendMessage(
-          {
-            action: "download",
-            data: result
-          },
-        );
+              // console.log(item)
+              let end = substringFromEnd(item.downloadUrl.split('?')[0], '.')
+              let name = item.title + item.subtitle + end
+              console.log(item, name)
+              // chrome.downloads.download({
+              //   url: item.downloadUrl,
+              //   filename: name
+              // })
+            }
+          };
+          xhrDown.send(params);
+        })
       }
       else
         console.log("not a compatible page")

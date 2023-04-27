@@ -4,24 +4,13 @@ chrome.runtime.onInstalled.addListener(() => {
 
 let urls = [];
 let id = [];
-let count = 0;
-let current = 0;
-let urlList = [];
-const gameId = { monsterhunterrise: 4095 };
-const urlHead =
-  "https://www.nexusmods.com/Core/Libs/Common/Managers/Downloads?GenerateDownloadUrl";
 
 chrome.runtime.onMessage.addListener(
   (request, sender, sendResponse) => {
     if (request.action === "getTabUrls") {
       sendResponse(filterUrl())
     }
-    else if (request.action === 'download') {
-      {
-        sendResponse(download(request.data))
-        // sendResponse({ response: "123" })
-      }
-    }
+    urls = [];
   }
 );
 
@@ -39,32 +28,7 @@ function filterUrl() {
     });
   });
   console.log("got your quest~");
-  count = urls.length
   if (urls.length)
     return { outcome: urls };
   else return { outcome: "failed" }
-}
-
-function gatherDownloadUrl(data) {
-  urlList.concat(data)
-}
-
-
-
-function download(data) {
-  console.log(current);
-
-  if (current < count) {
-    gatherDownloadUrl(data)
-    current++;
-  }
-  else {
-    count = 0
-    startDonwload()
-  }
-}
-
-function startDonwload() {
-  console.log("download started", urlList)
-  return { response: "download started" }
 }
